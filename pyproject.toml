@@ -1,0 +1,20 @@
+[project]
+name = "pyside6-guide"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Chris Winikka",email = "3827026+HundredVisionsGuy@users.noreply.github.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "pyside6 (>=6.10.0,<7.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "pyside6_guide", from = "src"}]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
