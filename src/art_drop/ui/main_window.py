@@ -1,22 +1,11 @@
 """
-hbox_layout.py
+main_window.py
 by HundredVisionsGuy
-A simple hbox layout with some vbox layouts for visual interest.
-
-NOTES:
-* I started you off on a VBoxLayout so we can add a layout across the top
-* Hboxes are a good complement to VBoxes
-* Vboxes are a good complement to HBoxes
-* Too many combinations make for a confusing UI (if that's you
-  then I recommend you use a Grid Layout.
+The main ArtDrop layout window.
 """
 
-import sys
-from PyQt6.QtWidgets import (
-    QApplication,
-    QHBoxLayout,
+from PySide6.QtWidgets import (
     QLabel,
-    QPushButton,
     QMainWindow,
     QVBoxLayout,
     QWidget,
@@ -48,8 +37,4 @@ class MainWindow(QMainWindow):
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = MainWindow()
-    window.show()
-
-    app.exec()
+    print("To be determined...")
