@@ -2,31 +2,81 @@
 controller.py
 by HundredVisionsguy
 Does all the work behind the scenes.
+
+For Error handling with requests, refer to the following article:
+https://medium.com/@PythonWithPurpose/
+python-api-error-handling-handle-errors-like-a-pro-a0da2899bf71
+
+NOTE: I stored it in the Programming 3 folder in classes
 """
 
-import requests as re
 import json
+import logging
+import pathlib
+import requests as re
 
-# Build out the URL based on the API and endpoints
-collections_base_api = "https://api.artic.edu/api/v1/"
-search_term = "monet"
-artworks_search = collections_base_api + "artworks/search?q=" + search_term
+def make_api_call(base_url: str, endpoint="", query="") -> str:
+    """makes an api call to url and returns data or error message
+    
+    Args:
+        base_url: the API url to call
+        endpoint: the endpoint (if provided) with a trailing slash
+        query: the search term (if provided)
+    
+    Returns:
+        str: the text of the returned data OR an error message if present
+    """
+    # make sure endpoint has trailing slash
+    if endpoint and endpoint.strip()[-1] != "/":
+        endpoint += "/"
 
-# try and make a call
-response = re.get(artworks_search)
-result = ""
-if response.ok:
-    result = response.text
+    url = base_url + endpoint
+    if query:
+        url += "search?q=" + query
+    
+    # make the call
     try:
-        # try to convert from json string to a dictionary or string
-        result = json.loads(result)
-    except Exception as ex:
-        result = ex
-else:
-    result = f"Error: {response.status_code} - Reason: {response.reason}"
-for key in result.keys():
-    print(key)
+        response = re.get(url, timeout=5)
 
-# Get info
-data = result.get("data")
-print(data)
+        # Raises an error for 4xx and 5xx status codes
+        response.raise_for_status()
+        if response.ok:
+            return response.text
+    except re.exceptions.RequestException as e:
+        return f"Something went wrong: {e}"
+    return "Not OK: Something went wrong!"
+
+def store_data(data: str, filename: str) -> str:
+    """store data as file type
+    
+    Args:
+        data: the data you want to store in a file
+        filename: the name of the file you want to store
+    
+    Returns:
+        str: success or failure if a string (might change later)
+    """
+    # get filename & store it in the data folder
+    file_path = pathlib.Path(f"data/{filename}")
+
+    # try to write to the file
+    try:
+        with file_path.open(mode="w") as file:
+            file.write(data)
+        return "Success!"
+    except OSError as error:
+        logging.error("Writing to file %s failed due to: %s",
+                      file_path,
+                      error)
+    
+
+if __name__ == "__main__":
+    # Build URL for API call
+    collections_base_api = "https://api.artic.edu/api/v1/"
+    endpoint = "artworks"
+    search_term = "manet"
+    result = make_api_call(collections_base_api, endpoint, search_term)
+    
+    # Try and store data
+    outcome = store_data(result, "api_result.json")
+    print(outcome)
