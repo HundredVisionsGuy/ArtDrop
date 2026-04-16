@@ -34,7 +34,6 @@ def make_api_call(base_url: str, endpoint="", query="") -> str:
     if query:
         url += "search?q=" + query
     
-    # make the call
     try:
         response = re.get(url, timeout=5)
 
@@ -42,9 +41,24 @@ def make_api_call(base_url: str, endpoint="", query="") -> str:
         response.raise_for_status()
         if response.ok:
             return response.text
+    except re.exceptions.ConnectionError:
+        return "❌ ERROR: Connection failed — check your internet or the URL"
+    except re.exceptions.Timeout:
+        return "⏰ ERROR: Request timed out — the server is too slow"
+    except re.exceptions.HTTPError as e:
+        status_code = e.response.status_code
+        if status_code == 401:
+            return "🔐 ERROR: Unauthorized — check your API key"
+        elif status_code == 404:
+            return "🔍 ERROR: Not found — check the endpoint URL"
+        elif status_code == 429:
+            return " ERROR:  Rate limited — slow down your requests"
+        elif status_code >= 500:
+            return "💥 ERROR:  Server error — try again later"
+        else:
+            return f"ERROR: HTTP Error {status_code}"
     except re.exceptions.RequestException as e:
-        return f"Something went wrong: {e}"
-    return "Not OK: Something went wrong!"
+        return f"❌ ERROR:  Unexpected error: {e}"
 
 def store_data(data: str, filename: str) -> str:
     """store data as file type
@@ -68,7 +82,17 @@ def store_data(data: str, filename: str) -> str:
         logging.error("Writing to file %s failed due to: %s",
                       file_path,
                       error)
-    
+
+
+def get_data(filename: str) -> str:
+    """pull the data from the filename"""
+    file_path = pathlib.Path(f"data/{filename}")
+
+    with file_path.open(mode="r") as file:
+        contents = file.read()
+        print(type(contents))
+    return contents
+              
 
 if __name__ == "__main__":
     # Build URL for API call
@@ -76,7 +100,14 @@ if __name__ == "__main__":
     endpoint = "artworks"
     search_term = "manet"
     result = make_api_call(collections_base_api, endpoint, search_term)
-    
-    # Try and store data
-    outcome = store_data(result, "api_result.json")
-    print(outcome)
+    if "ERROR" in result:
+        print(result)
+        
+        # Pull up from data a previous json file
+        data = get_data("api_result.json")
+    else:
+        # Try and store data
+        outcome = store_data(result, "api_result.json")
+        print(outcome)
+    data = get_data("api_result.json")
+    print(data)
