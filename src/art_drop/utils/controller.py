@@ -15,6 +15,9 @@ import logging
 import pathlib
 import requests as re
 
+COLLECTIONS_BASE_API = "https://api.artic.edu/api/v1/"
+
+
 def make_api_call(base_url: str, endpoint="", query="") -> str:
     """makes an api call to url and returns data or error message
     
@@ -60,6 +63,7 @@ def make_api_call(base_url: str, endpoint="", query="") -> str:
     except re.exceptions.RequestException as e:
         return f"❌ ERROR:  Unexpected error: {e}"
 
+
 def store_data(data: str, filename: str) -> str:
     """store data as file type
     
@@ -93,6 +97,17 @@ def get_data(filename: str) -> str:
         print(type(contents))
     return contents
               
+
+def artist_search(artist: str) -> str:
+    """returns search info on artist"""
+    raw_results = make_api_call(COLLECTIONS_BASE_API, "artists/", artist)
+
+    # I recommend you store the results if successful (in raw form)
+
+    # Clean up the results (using another function)
+    
+    return raw_results
+
 
 if __name__ == "__main__":
     # Build URL for API call
