@@ -92,10 +92,26 @@ def get_data(filename: str) -> str:
     """pull the data from the filename"""
     file_path = pathlib.Path(f"data/{filename}")
 
+    # Is the file json? if so, try this
+    if filename[-5:] == ".json":
+        with open(file_path, 'r') as f:
+            d = json.load(f)
+        print(d)
+    
+    titles = get_titles(d)
+
     with file_path.open(mode="r") as file:
         contents = file.read()
         print(type(contents))
     return contents
+
+def get_titles(d):
+    data = d.get("data")
+    all_titles = []
+    for datum in data:
+        title = datum.get("title")
+        all_titles.append(title)
+    return all_titles
               
 
 def artist_search(artist: str) -> str:
@@ -105,6 +121,12 @@ def artist_search(artist: str) -> str:
     # I recommend you store the results if successful (in raw form)
 
     # Clean up the results (using another function)
+    cleaned_results = ""
+    results_dict = json.loads(raw_results)
+    print(results_dict)
+
+    # Save it?
+    get_data("api_result.json")
     
     return raw_results
 
